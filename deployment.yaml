@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sample-app
+  namespace: app
   labels:
     app: sample-app
 spec:
@@ -19,9 +20,15 @@ spec:
           image: docker.io/altf4llc/fem-kubernetes:v1
           ports:
             - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: db-config
           env:
-            - name: DB_HOST
-              value: postgres
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: DB_PASSWORD
           startupProbe:
             httpGet:
               path: /healthz
